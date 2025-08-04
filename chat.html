@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat | MedCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .chat-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: calc(100vh - 80px);
+            margin-top: 10px;
+        }
+        
+        .contacts-list {
+            border-right: 1px solid var(--light-gray);
+            overflow-y: auto;
+        }
+        
+        .contact {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .contact:hover, .contact.active {
+            background-color: var(--light-gray);
+        }
+        
+        .contact img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .contact-info {
+            flex: 1;
+        }
+        
+        .contact-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .contact-preview {
+            font-size: 0.8rem;
+            color: var(--gray);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chat-messages {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .chat-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .messages-container {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--gray);
+            margin-top: 5px;
+            text-align: right;
+        }
+        
+        .message.received {
+            align-self: flex-start;
+            background-color: var(--light-gray);
+        }
+        
+        .message.sent {
+            align-self: flex-end;
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .message-input {
+            padding: 15px;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+        }
+        
+        .message-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+        
+        .message-input button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+        }
+        
+        .empty-chat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--gray);
+        }
+        
+        .empty-chat i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-clinic-medical"></i> MedCare</h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="patients.html" class="menu-item">
+                <i class="fas fa-user-injured"></i>
+                <span>Patients</span>
+            </a>
+            <a href="appointments.html" class="menu-item">
+                <i class="fas fa-calendar-check"></i>
+                <span>Appointments</span>
+            </a>
+            <a href="records.html" class="menu-item">
+                <i class="fas fa-file-medical"></i>
+                <span>Records</span>
+            </a>
+            <a href="chat.html" class="menu-item active">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+            </a>
+            <a href="admin.html" class="menu-item admin-only" style="display: none;">
+                <i class="fas fa-user-shield"></i>
+                <span>Admin</span>
+            </a>
+            <a href="settings.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="menu-item logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Chat</h1>
+            </div>
+            <div class="header-actions">
+                <div class="user-profile">
+                    <div class="user-profile-pic">
+                        <i class="fas fa-user-circle" style="font-size: 1.8rem; color: var(--primary);"></i>
+                    </div>
+                    <span id="user-display-name">User</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="contacts-list">
+                <!-- Contacts will be loaded here -->
+            </div>
+            
+            <div class="chat-messages">
+                <div class="empty-chat" id="emptyChat">
+                    <i class="fas fa-comments"></i>
+                    <h3>Select a contact to start chatting</h3>
+                </div>
+                
+                <div class="chat-header" id="chatHeader" style="display: none;">
+                    <!-- Active chat header will be here -->
+                </div>
+                
+                <div class="messages-container" id="messagesContainer" style="display: none;">
+                    <!-- Messages will be loaded here -->
+                </div>
+                
+                <div class="message-input" id="messageInput" style="display: none;">
+                    <input type="text" id="messageText" placeholder="Type a message...">
+                    <button id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize chats in localStorage if not exists
+            if (!localStorage.getItem('chats')) {
+                localStorage.setItem('chats', JSON.stringify({}));
+            }
+            
+            // Load contacts
+            loadContacts();
+            
+            // Send message event
+            document.getElementById('sendButton').addEventListener('click', sendMessage);
+            document.getElementById('messageText').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+        
+        let activeContact = null;
+        
+        function loadContacts() {
+            const contactsList = document.querySelector('.contacts-list');
+            const patients = JSON.parse(localStorage.getItem('patients')) || [];
+            const doctors = JSON.parse(localStorage.getItem('users')) || [];
+            const chats = JSON.parse(localStorage.getItem('chats')) || {};
+            
+            contactsList.innerHTML = '';
+            
+            // Add sample contacts if none exist
+            if (patients.length === 0 && doctors.length === 0) {
+                const sampleContacts = [
+                    { id: 'contact1', name: 'John Smith', role: 'Patient', img: 'https://randomuser.me/api/portraits/men/32.jpg' },
+                    { id: 'contact2', name: 'Dr. Emily Johnson', role: 'Doctor', img: 'https://randomuser.me/api/portraits/women/28.jpg' },
+                    { id: 'contact3', name: 'Michael Brown', role: 'Patient', img: 'https://randomuser.me/api/portraits/men/45.jpg' }
+                ];
+                
+                sampleContacts.forEach(contact => {
+                    createContactElement(contact, contactsList, chats);
+                });
+                
+                return;
+            }
+            
+            // Add patients as contacts
+            patients.forEach(patient => {
+                const contact = {
+                    id: patient.id,
+                    name: `${patient.firstName} ${patient.lastName}`,
+                    role: 'Patient',
+                    img: 'https://randomuser.me/api/portraits/men/' + (Math.floor(Math.random() * 50) + 1) + '.jpg'
+                };
+                
+                createContactElement(contact, contactsList, chats);
+            });
+            
+            // Add doctors as contacts
+            doctors.filter(user => user.role === 'doctor').forEach(doctor => {
+                const contact = {
+                    id: doctor.id,
+                    name: `Dr. ${doctor.firstName} ${doctor.lastName}`,
+                    role: 'Doctor',
+                    img: 'https://randomuser.me/api/portraits/women/' + (Math.floor(Math.random() * 50) + 1) + '.jpg'
+                };
+                
+                createContactElement(contact, contactsList, chats);
+            });
+        }
+        
+        function createContactElement(contact, contactsList, chats) {
+            const contactDiv = document.createElement('div');
+            contactDiv.className = 'contact';
+            contactDiv.dataset.id = contact.id;
+            
+            // Get last message for preview
+            const chatHistory = chats[contact.id] || [];
+            const lastMessage = chatHistory.length > 0 ? chatHistory[chatHistory.length - 1].message : 'No messages yet';
+            
+            contactDiv.innerHTML = `
+                <img src="${contact.img}" alt="${contact.name}">
+                <div class="contact-info">
+                    <div class="contact-name">${contact.name}</div>
+                    <div class="contact-preview">${lastMessage}</div>
+                </div>
+            `;
+            
+            contactDiv.addEventListener('click', function() {
+                // Remove active class from all contacts
+                document.querySelectorAll('.contact').forEach(el => el.classList.remove('active'));
+                
+                // Add active class to clicked contact
+                this.classList.add('active');
+                
+                // Set active contact
+                activeContact = contact;
+                
+                // Show chat interface
+                document.getElementById('emptyChat').style.display = 'none';
+                document.getElementById('chatHeader').style.display = 'flex';
+                document.getElementById('messagesContainer').style.display = 'flex';
+                document.getElementById('messageInput').style.display = 'flex';
+                
+                // Update chat header
+                document.getElementById('chatHeader').innerHTML = `
+                    <img src="${contact.img}" alt="${contact.name}">
+                    <div>
+                        <div style="font-weight: bold;">${contact.name}</div>
+                        <div style="font-size: 0.8rem; color: var(--gray);">${contact.role}</div>
+                    </div>
+                `;
+                
+                // Load messages
+                loadMessages(contact.id);
+            });
+            
+            contactsList.appendChild(contactDiv);
+        }
+        
+        function loadMessages(contactId) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const chats = JSON.parse(localStorage.getItem('chats')) || {};
+            const chatHistory = chats[contactId] || [];
+            
+            messagesContainer.innerHTML = '';
+            
+            if (chatHistory.length === 0) {
+                // Add sample messages if none exist
+                const now = new Date();
+                const sampleMessages = [
+                    { sender: 'user', message: 'Hello, how are you feeling today?', timestamp: new Date(now.getTime() - 3600000).toISOString() },
+                    { sender: 'contact', message: 'I\'m feeling much better, thank you for asking.', timestamp: new Date(now.getTime() - 3500000).toISOString() },
+                    { sender: 'user', message: 'That\'s great to hear! Have you been taking your medication as prescribed?', timestamp: new Date(now.getTime() - 3400000).toISOString() }
+                ];
+                
+                chats[contactId] = sampleMessages;
+                localStorage.setItem('chats', JSON.stringify(chats));
+                
+                sampleMessages.forEach(msg => {
+                    addMessageToUI(msg, messagesContainer);
+                });
+                
+                return;
+            }
+            
+            chatHistory.forEach(msg => {
+                addMessageToUI(msg, messagesContainer);
+            });
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function addMessageToUI(msg, container) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${msg.sender === 'user' ? 'sent' : 'received'}`;
+            
+            const time = new Date(msg.timestamp);
+            const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div>${msg.message}</div>
+                <div class="message-time">${formattedTime}</div>
+            `;
+            
+            container.appendChild(messageDiv);
+        }
+        
+        function sendMessage() {
+            const messageText = document.getElementById('messageText').value.trim();
+            
+            if (!messageText || !activeContact) return;
+            
+            const chats = JSON.parse(localStorage.getItem('chats')) || {};
+            const chatHistory = chats[activeContact.id] || [];
+            
+            // Add new message
+            const newMessage = {
+                sender: 'user',
+                message: messageText,
+                timestamp: new Date().toISOString()
+            };
+            
+            chatHistory.push(newMessage);
+            chats[activeContact.id] = chatHistory;
+            localStorage.setItem('chats', JSON.stringify(chats));
+            
+            // Add message to UI
+            addMessageToUI(newMessage, document.getElementById('messagesContainer'));
+            
+            // Clear input
+            document.getElementById('messageText').value = '';
+            
+            // Scroll to bottom
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Update contact preview
+            document.querySelector(`.contact[data-id="${activeContact.id}"] .contact-preview`).textContent = messageText;
+            
+            // Simulate reply after 1-3 seconds
+            setTimeout(() => {
+                simulateReply();
+            }, Math.random() * 2000 + 1000);
+        }
+        
+        function simulateReply() {
+            if (!activeContact) return;
+            
+            const replies = [
+                "Thank you for the information.",
+                "I'll make a note of that.",
+                "How are you feeling today?",
+                "Do you have any questions about your treatment?",
+                "Is there anything else I should know?",
+                "I'll see you at your next appointment.",
+                "Please remember to take your medication as prescribed.",
+                "Let me know if your symptoms change.",
+                "That's good to hear!",
+                "I'm sorry to hear that. Let's discuss this at your next visit."
+            ];
+            
+            const reply = replies[Math.floor(Math.random() * replies.length)];
+            
+            const chats = JSON.parse(localStorage.getItem('chats')) || {};
+            const chatHistory = chats[activeContact.id] || [];
+            
+            // Add new message
+            const newMessage = {
+                sender: 'contact',
+                message: reply,
+                timestamp: new Date().toISOString()
+            };
+            
+            chatHistory.push(newMessage);
+            chats[activeContact.id] = chatHistory;
+            localStorage.setItem('chats', JSON.stringify(chats));
+            
+            // Add message to UI
+            addMessageToUI(newMessage, document.getElementById('messagesContainer'));
+            
+            // Scroll to bottom
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Update contact preview
+            document.querySelector(`.contact[data-id="${activeContact.id}"] .contact-preview`).textContent = reply;
+        }
+    </script>
+</body>
+</html>

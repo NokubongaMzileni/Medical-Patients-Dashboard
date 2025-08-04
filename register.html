@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | MedCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .auth-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+        }
+        .auth-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .auth-links a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .error-message {
+            color: var(--danger);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .success-message {
+            color: var(--secondary);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h2><i class="fas fa-clinic-medical"></i> Patient Registration</h2>
+        <p class="error-message" id="errorMessage"></p>
+        <p class="success-message" id="successMessage"></p>
+        
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <div class="form-group">
+                <label for="idNumber">South African ID Number</label>
+                <input type="text" id="idNumber" required>
+                <small style="color: var(--gray);">13-digit ID number</small>
+            </div>
+            <div class="form-group">
+                <label for="photo">Profile Photo</label>
+                <input type="file" id="photo" accept="image/*">
+                <small style="color: var(--gray);">Optional</small>
+            </div>
+            <button type="submit" class="btn auth-btn">Register</button>
+        </form>
+        
+        <div class="auth-links">
+            <p>Already have an account? <a href="login.html">Login here</a></p>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // If already logged in, redirect
+            if (currentUser) {
+                window.location.href = currentUser.role === 'admin' ? 'admin.html' : 'index.html';
+                return;
+            }
+            
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const idNumber = document.getElementById('idNumber').value;
+                const photoInput = document.getElementById('photo');
+                
+                // Validate South African ID
+                if (!isValidSAID(idNumber)) {
+                    document.getElementById('errorMessage').textContent = 'Invalid South African ID number';
+                    document.getElementById('successMessage').textContent = '';
+                    return;
+                }
+                
+                // Handle photo upload
+                if (photoInput.files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const photoData = event.target.result;
+                        registerWithPhoto(firstName, lastName, email, password, idNumber, photoData);
+                    };
+                    reader.readAsDataURL(photoInput.files[0]);
+                } else {
+                    registerWithPhoto(firstName, lastName, email, password, idNumber, null);
+                }
+            });
+            
+            function registerWithPhoto(firstName, lastName, email, password, idNumber, photoData) {
+                const result = registerPatient(firstName, lastName, email, password, idNumber, photoData);
+                if (result.success) {
+                    document.getElementById('errorMessage').textContent = '';
+                    document.getElementById('successMessage').textContent = result.message + ' Redirecting to login...';
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    document.getElementById('errorMessage').textContent = result.message;
+                    document.getElementById('successMessage').textContent = '';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

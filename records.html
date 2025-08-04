@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Records | MedCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-clinic-medical"></i> MedCare</h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="patients.html" class="menu-item">
+                <i class="fas fa-user-injured"></i>
+                <span>Patients</span>
+            </a>
+            <a href="appointments.html" class="menu-item">
+                <i class="fas fa-calendar-check"></i>
+                <span>Appointments</span>
+            </a>
+            <a href="records.html" class="menu-item active">
+                <i class="fas fa-file-medical"></i>
+                <span>Records</span>
+            </a>
+            <a href="chat.html" class="menu-item">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+            </a>
+            <a href="admin.html" class="menu-item admin-only" style="display: none;">
+                <i class="fas fa-user-shield"></i>
+                <span>Admin</span>
+            </a>
+            <a href="settings.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="menu-item logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Medical Records</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn" id="newRecordBtn">
+                    <i class="fas fa-plus"></i> New Record
+                </button>
+                <div class="user-profile">
+                    <div class="user-profile-pic">
+                        <i class="fas fa-user-circle" style="font-size: 1.8rem; color: var(--primary);"></i>
+                    </div>
+                    <span id="user-display-name">User</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Patient Records</h3>
+                <div>
+                    <input type="text" id="searchRecord" placeholder="Search patient..." style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-right: 10px;">
+                    <select id="recordTypeFilter" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="all">All Types</option>
+                        <option value="Consultation">Consultation</option>
+                        <option value="Lab Result">Lab Result</option>
+                        <option value="Prescription">Prescription</option>
+                        <option value="Vital Signs">Vital Signs</option>
+                    </select>
+                </div>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--light-gray);">
+                        <th style="padding: 12px; text-align: left;">Patient</th>
+                        <th style="padding: 12px; text-align: left;">Date</th>
+                        <th style="padding: 12px; text-align: left;">Record Type</th>
+                        <th style="padding: 12px; text-align: left;">Doctor</th>
+                        <th style="padding: 12px; text-align: left;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsTable">
+                    <!-- Records will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- New Record Modal -->
+    <div id="recordModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: white; margin: 5% auto; padding: 20px; width: 60%; border-radius: 8px; max-height: 80vh; overflow-y: auto;">
+            <span class="close-modal" style="float: right; cursor: pointer; font-size: 1.5rem;">&times;</span>
+            <h3>New Medical Record</h3>
+            <form id="recordForm">
+                <div style="margin-bottom: 15px;">
+                    <label>Patient</label>
+                    <select id="patientSelect" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                        <option value="">Select Patient</option>
+                        <!-- Patients will be loaded here -->
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label>Record Type</label>
+                    <select id="recordType" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                        <option value="">Select Record Type</option>
+                        <option value="Consultation">Consultation</option>
+                        <option value="Lab Result">Lab Result</option>
+                        <option value="Prescription">Prescription</option>
+                        <option value="Vital Signs">Vital Signs</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label>Date</label>
+                    <input type="date" id="recordDate" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                
+                <!-- Vital Signs Fields (initially hidden) -->
+                <div id="vitalSignsFields" style="display: none; margin-bottom: 15px; border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                    <h4>Vital Signs</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label>Blood Pressure (mmHg)</label>
+                            <input type="text" id="bloodPressure" placeholder="120/80" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label>Heart Rate (bpm)</label>
+                            <input type="number" id="heartRate" placeholder="72" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label>Temperature (°C)</label>
+                            <input type="number" id="temperature" placeholder="37.0" step="0.1" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label>Respiratory Rate (breaths/min)</label>
+                            <input type="number" id="respiratoryRate" placeholder="16" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label>Oxygen Saturation (%)</label>
+                            <input type="number" id="oxygenSaturation" placeholder="98" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label>Weight (kg)</label>
+                            <input type="number" id="weight" placeholder="70" step="0.1" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Prescription Fields (initially hidden) -->
+                <div id="prescriptionFields" style="display: none; margin-bottom: 15px; border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                    <h4>Prescription Details</h4>
+                    <div style="margin-bottom: 10px;">
+                        <label>Medication</label>
+                        <input type="text" id="medication" placeholder="Medication name" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Dosage</label>
+                        <input type="text" id="dosage" placeholder="e.g., 500mg twice daily" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Duration</label>
+                        <input type="text" id="duration" placeholder="e.g., 7 days" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label>Notes</label>
+                    <textarea id="recordNotes" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; height: 100px;"></textarea>
+                </div>
+                <button type="submit" class="btn">Save Record</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Record Modal -->
+    <div id="viewRecordModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: white; margin: 5% auto; padding: 20px; width: 60%; border-radius: 8px; max-height: 80vh; overflow-y: auto;">
+            <span class="close-view-modal" style="float: right; cursor: pointer; font-size: 1.5rem;">&times;</span>
+            <h3>Medical Record Details</h3>
+            <div id="recordDetails">
+                <!-- Record details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize records in localStorage if not exists
+            if (!localStorage.getItem('medicalRecords')) {
+                localStorage.setItem('medicalRecords', JSON.stringify([]));
+            }
+            
+            // Load records
+            loadRecords();
+            
+            // Modal controls
+            const recordModal = document.getElementById('recordModal');
+            const viewRecordModal = document.getElementById('viewRecordModal');
+            const newRecordBtn = document.getElementById('newRecordBtn');
+            const closeModal = document.querySelector('.close-modal');
+            const closeViewModal = document.querySelector('.close-view-modal');
+            
+            newRecordBtn.addEventListener('click', function() {
+                // Load patients for the dropdown
+                loadPatients();
+                recordModal.style.display = 'block';
+            });
+            
+            closeModal.addEventListener('click', function() {
+                recordModal.style.display = 'none';
+            });
+            
+            closeViewModal.addEventListener('click', function() {
+                viewRecordModal.style.display = 'none';
+            });
+            
+            // Record type change event
+            document.getElementById('recordType').addEventListener('change', function() {
+                const recordType = this.value;
+                document.getElementById('vitalSignsFields').style.display = recordType === 'Vital Signs' ? 'block' : 'none';
+                document.getElementById('prescriptionFields').style.display = recordType === 'Prescription' ? 'block' : 'none';
+            });
+            
+            // Form submission
+            document.getElementById('recordForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const patientId = document.getElementById('patientSelect').value;
+                const patientName = document.getElementById('patientSelect').options[document.getElementById('patientSelect').selectedIndex].text;
+                const recordType = document.getElementById('recordType').value;
+                const date = document.getElementById('recordDate').value;
+                const notes = document.getElementById('recordNotes').value;
+                
+                // Create record object
+                const record = {
+                    id: `REC-${Math.floor(1000 + Math.random() * 9000)}`,
+                    patientId,
+                    patientName,
+                    recordType,
+                    date,
+                    doctor: 'Dr. Sarah Smith', // In a real app, this would be the logged-in doctor
+                    notes,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Add type-specific data
+                if (recordType === 'Vital Signs') {
+                    record.vitalSigns = {
+                        bloodPressure: document.getElementById('bloodPressure').value,
+                        heartRate: document.getElementById('heartRate').value,
+                        temperature: document.getElementById('temperature').value,
+                        respiratoryRate: document.getElementById('respiratoryRate').value,
+                        oxygenSaturation: document.getElementById('oxygenSaturation').value,
+                        weight: document.getElementById('weight').value
+                    };
+                } else if (recordType === 'Prescription') {
+                    record.prescription = {
+                        medication: document.getElementById('medication').value,
+                        dosage: document.getElementById('dosage').value,
+                        duration: document.getElementById('duration').value
+                    };
+                }
+                
+                // Save to localStorage
+                const records = JSON.parse(localStorage.getItem('medicalRecords'));
+                records.push(record);
+                localStorage.setItem('medicalRecords', JSON.stringify(records));
+                
+                // Close modal and reload records
+                recordModal.style.display = 'none';
+                this.reset();
+                loadRecords();
+            });
+            
+            // Search and filter
+            document.getElementById('searchRecord').addEventListener('input', function() {
+                loadRecords();
+            });
+            
+            document.getElementById('recordTypeFilter').addEventListener('change', function() {
+                loadRecords();
+            });
+        });
+        
+        function loadRecords() {
+            const records = JSON.parse(localStorage.getItem('medicalRecords')) || [];
+            const tbody = document.getElementById('recordsTable');
+            const searchTerm = document.getElementById('searchRecord').value.toLowerCase();
+            const typeFilter = document.getElementById('recordTypeFilter').value;
+            
+            tbody.innerHTML = '';
+            
+            const filteredRecords = records.filter(record => {
+                const matchesSearch = record.patientName.toLowerCase().includes(searchTerm);
+                const matchesType = typeFilter === 'all' || record.recordType === typeFilter;
+                
+                return matchesSearch && matchesType;
+            });
+            
+            // Sort by date (newest first)
+            filteredRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            filteredRecords.forEach(record => {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid var(--light-gray)';
+                
+                tr.innerHTML = `
+                    <td style="padding: 12px;">${record.patientName}</td>
+                    <td style="padding: 12px;">${formatDate(record.date)}</td>
+                    <td style="padding: 12px;">${record.recordType}</td>
+                    <td style="padding: 12px;">${record.doctor}</td>
+                    <td style="padding: 12px;">
+                        <button class="btn btn-sm" onclick="viewRecord('${record.id}')">View</button>
+                        <button class="btn btn-sm btn-outline" onclick="printRecord('${record.id}')">Print</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function loadPatients() {
+            const patients = JSON.parse(localStorage.getItem('patients')) || [];
+            const select = document.getElementById('patientSelect');
+            
+            // Clear previous options except the first one
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            // Add patient options
+            patients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.id;
+                option.textContent = `${patient.firstName} ${patient.lastName}`;
+                select.appendChild(option);
+            });
+        }
+        
+        function viewRecord(id) {
+            const records = JSON.parse(localStorage.getItem('medicalRecords')) || [];
+            const record = records.find(r => r.id === id);
+            
+            if (record) {
+                let detailsHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <p><strong>Patient:</strong> ${record.patientName}</p>
+                        <p><strong>Record Type:</strong> ${record.recordType}</p>
+                        <p><strong>Date:</strong> ${formatDate(record.date)}</p>
+                        <p><strong>Doctor:</strong> ${record.doctor}</p>
+                    </div>
+                `;
+                
+                // Add type-specific details
+                if (record.recordType === 'Vital Signs' && record.vitalSigns) {
+                    detailsHTML += `
+                        <div style="margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 4px;">
+                            <h4>Vital Signs</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <p><strong>Blood Pressure:</strong> ${record.vitalSigns.bloodPressure || 'N/A'} mmHg</p>
+                                <p><strong>Heart Rate:</strong> ${record.vitalSigns.heartRate || 'N/A'} bpm</p>
+                                <p><strong>Temperature:</strong> ${record.vitalSigns.temperature || 'N/A'} °C</p>
+                                <p><strong>Respiratory Rate:</strong> ${record.vitalSigns.respiratoryRate || 'N/A'} breaths/min</p>
+                                <p><strong>Oxygen Saturation:</strong> ${record.vitalSigns.oxygenSaturation || 'N/A'} %</p>
+                                <p><strong>Weight:</strong> ${record.vitalSigns.weight || 'N/A'} kg</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (record.recordType === 'Prescription' && record.prescription) {
+                    detailsHTML += `
+                        <div style="margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 4px;">
+                            <h4>Prescription Details</h4>
+                            <p><strong>Medication:</strong> ${record.prescription.medication || 'N/A'}</p>
+                            <p><strong>Dosage:</strong> ${record.prescription.dosage || 'N/A'}</p>
+                            <p><strong>Duration:</strong> ${record.prescription.duration || 'N/A'}</p>
+                        </div>
+                    `;
+                }
+                
+                // Add notes
+                detailsHTML += `
+                    <div style="margin-bottom: 20px;">
+                        <h4>Notes</h4>
+                        <p>${record.notes || 'No notes provided'}</p>
+                    </div>
+                `;
+                
+                document.getElementById('recordDetails').innerHTML = detailsHTML;
+                document.getElementById('viewRecordModal').style.display = 'block';
+            }
+        }
+        
+        function printRecord(id) {
+            // In a real app, this would generate a printable version
+            alert(`Printing record ${id}`);
+        }
+        
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patients | MedCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar Navigation (same as index.html) -->
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Patients</h1>
+            </div>
+            <div class="header-actions">
+                <a href="#" class="btn">
+                    <i class="fas fa-plus"></i> New Patient
+                </a>
+                <div class="user-profile">
+                    <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="User">
+                    <span>Dr. Sarah Smith</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3>All Patients</h3>
+                <div>
+                    <input type="text" placeholder="Search patients..." style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <button class="btn btn-sm btn-outline">Filter</button>
+                </div>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--light-gray);">
+                        <th style="padding: 12px; text-align: left;">Patient</th>
+                        <th style="padding: 12px; text-align: left;">ID</th>
+                        <th style="padding: 12px; text-align: left;">Last Visit</th>
+                        <th style="padding: 12px; text-align: left;">Status</th>
+                        <th style="padding: 12px; text-align: left;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Patient rows would be here -->
+                </tbody>
+            </table>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--light-gray);">
+                <span class="text-muted">Showing 1-10 of 124 patients</span>
+                <div>
+                    <button class="btn btn-sm btn-outline">Previous</button>
+                    <button class="btn btn-sm">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

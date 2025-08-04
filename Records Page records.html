@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Records | MedCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar Navigation (same as index.html) -->
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Medical Records</h1>
+            </div>
+            <div class="header-actions">
+                <div class="user-profile">
+                    <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="User">
+                    <span>Dr. Sarah Smith</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Patient Records</h3>
+                <div>
+                    <input type="text" placeholder="Search records..." style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <button class="btn btn-sm btn-outline">Filter</button>
+                </div>
+            </div>
+            
+            <!-- Records navigation tabs -->
+            <div style="display: flex; border-bottom: 1px solid var(--light-gray); margin-bottom: 20px;">
+                <button style="padding: 10px 20px; background: none; border: none; border-bottom: 3px solid var(--primary); cursor: pointer;">
+                    Medical History
+                </button>
+                <button style="padding: 10px 20px; background: none; border: none; cursor: pointer;">
+                    Prescriptions
+                </button>
+                <button style="padding: 10px 20px; background: none; border: none; cursor: pointer;">
+                    Lab Results
+                </button>
+            </div>
+            
+            <!-- Records content would be here -->
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

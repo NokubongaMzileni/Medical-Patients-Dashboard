@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointments | MedCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-clinic-medical"></i> MedCare</h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="patients.html" class="menu-item">
+                <i class="fas fa-user-injured"></i>
+                <span>Patients</span>
+            </a>
+            <a href="appointments.html" class="menu-item active">
+                <i class="fas fa-calendar-check"></i>
+                <span>Appointments</span>
+            </a>
+            <a href="records.html" class="menu-item">
+                <i class="fas fa-file-medical"></i>
+                <span>Records</span>
+            </a>
+            <a href="chat.html" class="menu-item">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+            </a>
+            <a href="admin.html" class="menu-item admin-only" style="display: none;">
+                <i class="fas fa-user-shield"></i>
+                <span>Admin</span>
+            </a>
+            <a href="settings.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="menu-item logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Appointments</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn" id="newAppointmentBtn">
+                    <i class="fas fa-calendar-plus"></i> New Appointment
+                </button>
+                <div class="user-profile">
+                    <div class="user-profile-pic">
+                        <i class="fas fa-user-circle" style="font-size: 1.8rem; color: var(--primary);"></i>
+                    </div>
+                    <span id="user-display-name">User</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Calendar View</h3>
+                <div>
+                    <button class="btn btn-sm btn-outline">Today</button>
+                    <button class="btn btn-sm">Week</button>
+                    <button class="btn btn-sm">Month</button>
+                </div>
+            </div>
+            
+            <!-- Calendar would be implemented here -->
+            <div style="min-height: 300px; display: flex; align-items: center; justify-content: center; color: var(--gray);">
+                Calendar View Placeholder
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Upcoming Appointments</h3>
+                <div>
+                    <input type="text" id="searchAppointment" placeholder="Search..." style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-right: 10px;">
+                    <select id="statusFilter" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="all">All Status</option>
+                        <option value="Scheduled">Scheduled</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="No Show">No Show</option>
+                    </select>
+                </div>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--light-gray);">
+                        <th style="padding: 12px; text-align: left;">Patient</th>
+                        <th style="padding: 12px; text-align: left;">Date & Time</th>
+                        <th style="padding: 12px; text-align: left;">Reason</th>
+                        <th style="padding: 12px; text-align: left;">Status</th>
+                        <th style="padding: 12px; text-align: left;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="appointmentsTable">
+                    <!-- Appointments will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- New Appointment Modal -->
+    <div id="appointmentModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: white; margin: 10% auto; padding: 20px; width: 50%; border-radius: 8px;">
+            <span class="close-modal" style="float: right; cursor: pointer; font-size: 1.5rem;">&times;</span>
+            <h3>New Appointment</h3>
+            <form id="appointmentForm">
+                <div style="margin-bottom: 15px;">
+                    <label>Patient</label>
+                    <select id="patientSelect" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                        <option value="">Select Patient</option>
+                        <!-- Patients will be loaded here -->
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label>Date</label>
+                    <input type="date" id="appointmentDate" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label>Time</label>
+                    <input type="time" id="appointmentTime" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label>Reason</label>
+                    <input type="text" id="appointmentReason" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label>Notes</label>
+                    <textarea id="appointmentNotes" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; height: 100px;"></textarea>
+                </div>
+                <button type="submit" class="btn">Schedule Appointment</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load appointments
+            loadAppointments();
+            
+            // Modal controls
+            const appointmentModal = document.getElementById('appointmentModal');
+            const newAppointmentBtn = document.getElementById('newAppointmentBtn');
+            const closeModal = document.querySelector('.close-modal');
+            
+            newAppointmentBtn.addEventListener('click', function() {
+                // Load patients for the dropdown
+                loadPatients();
+                appointmentModal.style.display = 'block';
+            });
+            
+            closeModal.addEventListener('click', function() {
+                appointmentModal.style.display = 'none';
+            });
+            
+            // Form submission
+            document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const patientId = document.getElementById('patientSelect').value;
+                const patientName = document.getElementById('patientSelect').options[document.getElementById('patientSelect').selectedIndex].text;
+                const date = document.getElementById('appointmentDate').value;
+                const time = document.getElementById('appointmentTime').value;
+                const reason = document.getElementById('appointmentReason').value;
+                const notes = document.getElementById('appointmentNotes').value;
+                
+                // Create appointment
+                const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+                const newAppointment = {
+                    id: `APT-${Math.floor(1000 + Math.random() * 9000)}`,
+                    patientId,
+                    patientName,
+                    date,
+                    time: formatTime(time),
+                    reason,
+                    status: 'Scheduled',
+                    notes
+                };
+                
+                appointments.push(newAppointment);
+                localStorage.setItem('appointments', JSON.stringify(appointments));
+                
+                // Close modal and reload appointments
+                appointmentModal.style.display = 'none';
+                this.reset();
+                loadAppointments();
+            });
+            
+            // Search and filter
+            document.getElementById('searchAppointment').addEventListener('input', function() {
+                loadAppointments();
+            });
+            
+            document.getElementById('statusFilter').addEventListener('change', function() {
+                loadAppointments();
+            });
+        });
+        
+        function loadAppointments() {
+            const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+            const tbody = document.getElementById('appointmentsTable');
+            const searchTerm = document.getElementById('searchAppointment').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            tbody.innerHTML = '';
+            
+            const filteredAppointments = appointments.filter(appt => {
+                const matchesSearch = appt.patientName.toLowerCase().includes(searchTerm) || 
+                                      appt.reason.toLowerCase().includes(searchTerm);
+                const matchesStatus = statusFilter === 'all' || appt.status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            filteredAppointments.forEach(appt => {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid var(--light-gray)';
+                
+                // Format status class
+                const statusClass = appt.status.toLowerCase().replace(' ', '-');
+                
+                tr.innerHTML = `
+                    <td style="padding: 12px;">${appt.patientName}</td>
+                    <td style="padding: 12px;">${appt.date} at ${appt.time}</td>
+                    <td style="padding: 12px;">${appt.reason}</td>
+                    <td style="padding: 12px;">
+                        <span class="status-${statusClass}" style="padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; background-color: ${getStatusColor(appt.status)}; color: white;">
+                            ${appt.status}
+                        </span>
+                    </td>
+                    <td style="padding: 12px;">
+                        <button class="btn btn-sm" onclick="editAppointment('${appt.id}')">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="cancelAppointment('${appt.id}')">Cancel</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function loadPatients() {
+            const patients = JSON.parse(localStorage.getItem('patients')) || [];
+            const select = document.getElementById('patientSelect');
+            
+            // Clear previous options except the first one
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            // Add patient options
+            patients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.id;
+                option.textContent = `${patient.firstName} ${patient.lastName}`;
+                select.appendChild(option);
+            });
+        }
+        
+        function editAppointment(id) {
+            // In a real app, this would open an edit modal
+            alert(`Editing appointment ${id}`);
+        }
+        
+        function cancelAppointment(id) {
+            if (confirm('Are you sure you want to cancel this appointment?')) {
+                const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+                const updated = appointments.map(a => 
+                    a.id === id ? {...a, status: 'Cancelled'} : a
+                );
+                localStorage.setItem('appointments', JSON.stringify(updated));
+                loadAppointments();
+            }
+        }
+        
+        function formatTime(time) {
+            // Convert 24h time to 12h format
+            const [hours, minutes] = time.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        }
+        
+        function getStatusColor(status) {
+            switch(status) {
+                case 'Scheduled': return 'var(--primary)';
+                case 'Completed': return 'var(--secondary)';
+                case 'Cancelled': return 'var(--danger)';
+                case 'No Show': return 'var(--warning)';
+                default: return 'var(--gray)';
+            }
+        }
+    </script>
+</body>
+</html>

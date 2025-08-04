@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patients | MedCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-clinic-medical"></i> MedCare</h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="patients.html" class="menu-item active">
+                <i class="fas fa-user-injured"></i>
+                <span>Patients</span>
+            </a>
+            <a href="appointments.html" class="menu-item">
+                <i class="fas fa-calendar-check"></i>
+                <span>Appointments</span>
+            </a>
+            <a href="records.html" class="menu-item">
+                <i class="fas fa-file-medical"></i>
+                <span>Records</span>
+            </a>
+            <a href="chat.html" class="menu-item">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+            </a>
+            <a href="admin.html" class="menu-item admin-only" style="display: none;">
+                <i class="fas fa-user-shield"></i>
+                <span>Admin</span>
+            </a>
+            <a href="settings.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="menu-item logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Patients</h1>
+            </div>
+            <div class="header-actions">
+                <div class="user-profile">
+                    <div class="user-profile-pic">
+                        <i class="fas fa-user-circle" style="font-size: 1.8rem; color: var(--primary);"></i>
+                    </div>
+                    <span id="user-display-name">User</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Patient Directory</h3>
+                <div>
+                    <input type="text" id="searchPatient" placeholder="Search..." style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-right: 10px;">
+                </div>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--light-gray);">
+                        <th style="padding: 12px; text-align: left;">Name</th>
+                        <th style="padding: 12px; text-align: left;">ID Number</th>
+                        <th style="padding: 12px; text-align: left;">Date of Birth</th>
+                        <th style="padding: 12px; text-align: left;">Gender</th>
+                        <th style="padding: 12px; text-align: left;">Contact</th>
+                        <th style="padding: 12px; text-align: left;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="patientsTable">
+                    <!-- Patients will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Recent Patient Activity</h3>
+            </div>
+            
+            <div id="recentActivity" style="padding: 15px;">
+                <!-- Recent activity will be loaded here -->
+                <p>No recent activity</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Details Modal -->
+    <div id="patientModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: white; margin: 5% auto; padding: 20px; width: 70%; border-radius: 8px; max-height: 80vh; overflow-y: auto;">
+            <span class="close-modal" style="float: right; cursor: pointer; font-size: 1.5rem;">&times;</span>
+            <h3>Patient Details</h3>
+            <div id="patientDetails">
+                <!-- Patient details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load patients
+            loadPatients();
+            
+            // Modal controls
+            const patientModal = document.getElementById('patientModal');
+            const closeModal = document.querySelector('.close-modal');
+            
+            closeModal.addEventListener('click', function() {
+                patientModal.style.display = 'none';
+            });
+            
+            // Search functionality
+            document.getElementById('searchPatient').addEventListener('input', function() {
+                loadPatients();
+            });
+        });
+        
+        function loadPatients() {
+            const patients = JSON.parse(localStorage.getItem('patients')) || [];
+            const tbody = document.getElementById('patientsTable');
+            const searchTerm = document.getElementById('searchPatient').value.toLowerCase();
+            
+            tbody.innerHTML = '';
+            
+            const filteredPatients = patients.filter(patient => {
+                const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+                return fullName.includes(searchTerm) || 
+                       (patient.idNumber && patient.idNumber.includes(searchTerm)) || 
+                       (patient.email && patient.email.toLowerCase().includes(searchTerm));
+            });
+            
+            filteredPatients.forEach(patient => {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid var(--light-gray)';
+                
+                // Extract DOB and gender from ID if available
+                let dob = 'N/A';
+                let gender = 'N/A';
+                
+                if (patient.idNumber && patient.idNumber.length === 13) {
+                    // Extract DOB from SA ID
+                    const year = parseInt(patient.idNumber.substring(0, 2));
+                    const month = parseInt(patient.idNumber.substring(2, 4));
+                    const day = parseInt(patient.idNumber.substring(4, 6));
+                    
+                    // Determine century
+                    const currentYear = new Date().getFullYear() % 100;
+                    const century = year <= currentYear ? 2000 : 1900;
+                    
+                    dob = `${day}/${month}/${century + year}`;
+                    
+                    // Extract gender from SA ID
+                    const genderDigit = parseInt(patient.idNumber.substring(6, 10));
+                    gender = genderDigit < 5000 ? 'Female' : 'Male';
+                }
+                
+                tr.innerHTML = `
+                    <td style="padding: 12px;">${patient.firstName} ${patient.lastName}</td>
+                    <td style="padding: 12px;">${patient.idNumber || 'N/A'}</td>
+                    <td style="padding: 12px;">${dob}</td>
+                    <td style="padding: 12px;">${gender}</td>
+                    <td style="padding: 12px;">${patient.email || 'N/A'}</td>
+                    <td style="padding: 12px;">
+                        <button class="btn btn-sm" onclick="viewPatient('${patient.id}')">View</button>
+                        <button class="btn btn-sm btn-outline" onclick="scheduleAppointment('${patient.id}')">Schedule</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function viewPatient(id) {
+            const patients = JSON.parse(localStorage.getItem('patients')) || [];
+            const patient = patients.find(p => p.id === id);
+            
+            if (patient) {
+                const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+                const patientAppointments = appointments.filter(a => a.patientId === id);
+                
+                // Extract DOB and gender from ID if available
+                let dob = 'N/A';
+                let gender = 'N/A';
+                
+                if (patient.idNumber && patient.idNumber.length === 13) {
+                    // Extract DOB from SA ID
+                    const year = parseInt(patient.idNumber.substring(0, 2));
+                    const month = parseInt(patient.idNumber.substring(2, 4));
+                    const day = parseInt(patient.idNumber.substring(4, 6));
+                    
+                    // Determine century
+                    const currentYear = new Date().getFullYear() % 100;
+                    const century = year <= currentYear ? 2000 : 1900;
+                    
+                    dob = `${day}/${month}/${century + year}`;
+                    
+                    // Extract gender from SA ID
+                    const genderDigit = parseInt(patient.idNumber.substring(6, 10));
+                    gender = genderDigit < 5000 ? 'Female' : 'Male';
+                }
+                
+                // Build patient details HTML
+                let detailsHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <h4>Personal Information</h4>
+                            <p><strong>Name:</strong> ${patient.firstName} ${patient.lastName}</p>
+                            <p><strong>ID Number:</strong> ${patient.idNumber || 'N/A'}</p>
+                            <p><strong>Date of Birth:</strong> ${dob}</p>
+                            <p><strong>Gender:</strong> ${gender}</p>
+                            <p><strong>Email:</strong> ${patient.email || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <h4>Medical Information</h4>
+                            <p><strong>Blood Type:</strong> Unknown</p>
+                            <p><strong>Allergies:</strong> None recorded</p>
+                            <p><strong>Chronic Conditions:</strong> None recorded</p>
+                        </div>
+                    </div>
+                    
+                    <h4>Appointment History</h4>
+                `;
+                
+                if (patientAppointments.length > 0) {
+                    detailsHTML += `
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--light-gray);">
+                                    <th style="padding: 8px; text-align: left;">Date</th>
+                                    <th style="padding: 8px; text-align: left;">Time</th>
+                                    <th style="padding: 8px; text-align: left;">Reason</th>
+                                    <th style="padding: 8px; text-align: left;">Status</th>
+                                    <th style="padding: 8px; text-align: left;">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    patientAppointments.forEach(appt => {
+                        detailsHTML += `
+                            <tr style="border-bottom: 1px solid var(--light-gray);">
+                                <td style="padding: 8px;">${appt.date}</td>
+                                <td style="padding: 8px;">${appt.time}</td>
+                                <td style="padding: 8px;">${appt.reason}</td>
+                                <td style="padding: 8px;">
+                                    <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; background-color: ${getStatusColor(appt.status)}; color: white;">
+                                        ${appt.status}
+                                    </span>
+                                </td>
+                                <td style="padding: 8px;">${appt.notes || 'No notes'}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    detailsHTML += `
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    detailsHTML += `<p>No appointment history</p>`;
+                }
+                
+                document.getElementById('patientDetails').innerHTML = detailsHTML;
+                document.getElementById('patientModal').style.display = 'block';
+            }
+        }
+        
+        function scheduleAppointment(patientId) {
+            // Redirect to appointments page with patient ID
+            window.location.href = `appointments.html?patient=${patientId}`;
+        }
+        
+        function getStatusColor(status) {
+            switch(status) {
+                case 'Scheduled': return 'var(--primary)';
+                case 'Completed': return 'var(--secondary)';
+                case 'Cancelled': return 'var(--danger)';
+                case 'No Show': return 'var(--warning)';
+                default: return 'var(--gray)';
+            }
+        }
+    </script>
+</body>
+</html>
